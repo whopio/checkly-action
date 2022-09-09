@@ -1,0 +1,16 @@
+name: Sync Check Group
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: ./
+        with:
+          checkly-token: ${{ secrets.CHECKLY_TOKEN }}
+          checkly-group: ${{ secrets.CHECKLY_GROUP }}
+          checkly-account: ${{ secrets.CHECKLY_ACCOUNT }}
+          directory: ./examples/basic

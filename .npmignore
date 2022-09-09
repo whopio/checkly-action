@@ -1,0 +1,8 @@
+src
+examples
+openapitools.json
+spec.json
+pnpm-lock.yaml
+tsconfig.json
+.env.local
+.gitattributes

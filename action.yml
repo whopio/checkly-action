@@ -1,0 +1,20 @@
+name: "Checkly Action"
+description: "This action syncs a tests folder in your repo with a checkly check group."
+inputs:
+  checkly-token:
+    required: true
+    description: "Checkly Token"
+  checkly-group:
+    required: true
+    description: "Checkly Check Group"
+  checkly-account:
+    required: true
+    description: "Checkly Account ID"
+  directory:
+    required: false
+    default: ./
+    description: "if you want to modify the tests root directory"
+
+runs:
+  using: "node16"
+  main: "index.js"
