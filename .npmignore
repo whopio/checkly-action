@@ -10,3 +10,5 @@ action
 index.ts
 action.yml
 .github
+shim.js
+tsup.config.js
