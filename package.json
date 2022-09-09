@@ -1,12 +1,14 @@
 {
   "name": "@whop-sdk/checkly-action",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Sync a repository with a checkly group.",
   "private": false,
   "scripts": {
-    "bundle": "tsup src/cli.ts --format esm --minify",
-    "prepublishOnly": "tsup src/cli.ts --format esm --minify",
+    "bundle": "tsup src/cli.ts --format esm --minify --clean",
+    "prepublishOnly": "tsup src/cli.ts --format esm --minify --clean",
     "dev": "tsup src/cli.ts --watch --format esm",
+    "action:bundle": "tsup index.ts --format cjs --minify --clean",
+    "action:dev": "tsup index.ts --format cjs --watch",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -32,10 +34,5 @@
     "request": "^2.88.2"
   },
   "module": "./dist/cli.mjs",
-  "bin": "./dist/cli.mjs",
-  "tsup": {
-    "banner": {
-      "js": "import { createRequire } from 'module';const require = createRequire(import.meta.url);import { fileURLToPath } from 'url';import { dirname as __dirname__ } from 'path';const __filename = fileURLToPath(import.meta.url);const __dirname = __dirname__(__filename)"
-    }
-  }
+  "bin": "./dist/cli.mjs"
 }

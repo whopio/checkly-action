@@ -6,3 +6,7 @@ pnpm-lock.yaml
 tsconfig.json
 .env.local
 .gitattributes
+action
+index.ts
+action.yml
+.github
