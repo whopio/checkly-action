@@ -11,6 +11,7 @@ import {
   readJson,
   rm,
   stat,
+  Stats,
 } from "fs-extra";
 import { makeExportStripper } from "./util/export-stripper";
 import { build as esbuild } from "esbuild";
@@ -51,6 +52,16 @@ const wrapScript = (path: string, script: string) => `
 // auto-generated file, do not edit. Source at: ${path}
 ${script}
 `;
+
+const exists = async (location: string, check?: (stats: Stats) => boolean) => {
+  try {
+    const stats = await stat(location);
+    if (check) return check(stats);
+    return true;
+  } catch {
+    return false;
+  }
+};
 
 const meowFlags = {
   help: { type: "boolean", default: false, alias: "h" },
@@ -99,6 +110,8 @@ const build = async ({ directory, outDir }: TypedFlags<typeof meowFlags>) => {
     }
     return result;
   };
+  if (!(await exists(join(baseDir, "tests"), (stats) => stats.isDirectory())))
+    return;
   const tests = await collect("tests");
   await Promise.all(
     tests.map((test) => buildSingle(baseDir, outDir, baseConfig, test))
@@ -194,6 +207,7 @@ const collectLocalTests = async (
   dir: string,
   result: Set<string> = new Set()
 ) => {
+  if (!(await exists(dir, (stats) => stats.isDirectory()))) return result;
   const filesAndFolders = await readdir(dir);
   for (const fileOrFolder of filesAndFolders) {
     const full = join(dir, fileOrFolder);
