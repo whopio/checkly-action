@@ -25,5 +25,30 @@ jobs:
       - name: Install Node Modules
         run: pnpm i
       - uses: JS-DevTools/npm-publish@v1
+        id: publish
         with:
           token: ${{ secrets.NPM_TOKEN }}
+      - name: Create release Branch and Tag
+        if: steps.publish.outputs.type != 'none'
+        run: |
+          git config --global user.name github-actions
+          git config --global user.email actions@whop.com
+          git checkout -b 'release/v${{ steps.publish.outputs.version }}'
+          pnpm action:bundle
+          echo "${{ hashFiles('package.json') }}" >> INTEGREITY
+          git add -A
+          git commit -m 'release v${{ steps.publish.outputs.version }}'
+          git push --set-upstream origin release/v${{ steps.publish.outputs.version }}
+          git tag v${{ steps.publish.outputs.version }} release/v${{ steps.publish.outputs.version }}
+          git push origin v${{ steps.publish.outputs.version }}
+      - name: release
+        uses: actions/create-release@v1
+        id: create_release
+        if: steps.publish.outputs.type != 'none'
+        with:
+          draft: false
+          prerelease: true
+          release_name: ${{ steps.publish.outputs.version }}
+          tag_name: v${{ steps.publish.outputs.version }}
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
