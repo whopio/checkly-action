@@ -39,7 +39,7 @@ type FullChecklyConfig = ChecklyConfig & {
 const makeHandlerEntry = (path: string) => `
 import handler from "test:./${path}";
 
-handler();
+export default handler();
 `;
 
 const makeConfigEntry = (path: string) => `
@@ -151,7 +151,7 @@ const buildScript = async (
 ) => {
   const handlerEntry = makeHandlerEntry(entry);
   const {
-    outputFiles: [{ path, text }],
+    outputFiles: [{ text }],
   } = await esbuild({
     stdin: {
       contents: handlerEntry,
@@ -178,7 +178,7 @@ const buildConfig = async (
   try {
     const configEntry = makeConfigEntry(entry);
     const {
-      outputFiles: [{ path, text }],
+      outputFiles: [{ text }],
     } = await esbuild({
       stdin: {
         contents: configEntry,
@@ -193,7 +193,7 @@ const buildConfig = async (
       target: "node16",
       bundle: true,
     });
-    const { default: testConfig } = runScript<{ default: any }>(
+    const { default: testConfig } = runScript<{ default: FullChecklyConfig }>(
       text,
       join(baseDir, entry)
     );
@@ -209,13 +209,16 @@ const collectLocalTests = async (
 ) => {
   if (!(await exists(dir, (stats) => stats.isDirectory()))) return result;
   const filesAndFolders = await readdir(dir);
-  for (const fileOrFolder of filesAndFolders) {
-    const full = join(dir, fileOrFolder);
-    if ((await stat(full)).isDirectory()) await collectLocalTests(full, result);
-    else {
-      if (full.endsWith("config.json")) result.add(dir);
-    }
-  }
+  await Promise.all(
+    filesAndFolders.map(async (fileOrFolder) => {
+      const full = join(dir, fileOrFolder);
+      if ((await stat(full)).isDirectory())
+        await collectLocalTests(full, result);
+      else {
+        if (fileOrFolder === "config.json") result.add(dir);
+      }
+    })
+  );
   return result;
 };
 
@@ -236,14 +239,12 @@ const getAllChecks = async (
   group: number,
   account: string
 ): Promise<CheckGroupCheck[]> => {
-  const all = [];
   const {
-    body,
+    body: all,
     response: {
       headers: { "content-range": range },
     },
-  } = await api.getV1CheckgroupsIdChecks(group, account);
-  all.push(...body);
+  } = await api.getV1CheckgroupsIdChecks(group, account, 100);
   const [, total] = range!.split("/");
   const more = await Promise.all(
     Array(Math.max(0, Math.ceil(parseInt(total) / 100) - 1))
@@ -251,7 +252,9 @@ const getAllChecks = async (
       .map(async (_, page) => {
         const { body: more } = await api.getV1CheckgroupsIdChecks(
           group,
-          account
+          account,
+          100,
+          page + 2
         );
         return more;
       })
