@@ -9,7 +9,7 @@
     "dev": "tsup src/cli.ts --watch --format esm",
     "action:bundle": "tsup index.ts --format cjs --minify --clean",
     "action:dev": "tsup index.ts --format cjs --watch",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node dist/cli.mjs run --dir ./examples/basic"
   },
   "keywords": [],
   "author": "",

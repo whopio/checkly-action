@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
-import meow, { TypedFlags } from "meow";
-import { dirname, join, relative } from "path";
+import { build as esbuild } from "esbuild";
 import {
   outputFile,
   outputJSON,
@@ -11,32 +10,23 @@ import {
   readJson,
   rm,
   stat,
-  Stats,
 } from "fs-extra";
-import { makeExportStripper } from "./util/export-stripper";
-import { build as esbuild } from "esbuild";
+import meow, { TypedFlags } from "meow";
 import Module, { builtinModules } from "module";
+import { dirname, join, relative } from "path";
 import { runInNewContext } from "vm";
 import { CheckGroupCheck, CheckGroupsApi, ChecksApi } from "./checkly/api";
+import run from "./commands/run";
+import flags from "./flags";
+import { ChecklyConfig, FullChecklyConfig } from "./types";
+import { collectLocalTests, exists } from "./util/common";
+import { makeExportStripper } from "./util/export-stripper";
 
 const help = `
 Get help brother
 `;
 
-interface ChecklyConfig {
-  locations: string[];
-  runtimeId: string;
-  frequency: number;
-}
-
-type FullChecklyConfig = ChecklyConfig & {
-  activated: boolean;
-  muted: boolean;
-  shouldFail: boolean;
-  doubleCheck: boolean;
-};
-
-const makeHandlerEntry = (path: string) => `
+const makeHandlerEntry = (path: string, on: ChecklyConfig["on"]) => `
 import handler from "test:./${path}";
 
 export default handler();
@@ -53,27 +43,6 @@ const wrapScript = (path: string, script: string) => `
 ${script}
 `;
 
-const exists = async (location: string, check?: (stats: Stats) => boolean) => {
-  try {
-    const stats = await stat(location);
-    if (check) return check(stats);
-    return true;
-  } catch {
-    return false;
-  }
-};
-
-const meowFlags = {
-  help: { type: "boolean", default: false, alias: "h" },
-  version: { type: "boolean", default: false, alias: "v" },
-  groupId: { type: "number", alias: "g" },
-  accountId: { type: "string", alias: "acc" },
-  token: { type: "string", alias: "t" },
-  directory: { type: "string", alias: "dir" },
-  outDir: { type: "string", alias: "out", default: ".checkly" },
-  prebuilt: { type: "boolean", default: false },
-} as const;
-
 const HandlerPlugin = makeExportStripper("HandlerPlugin", /^test:/, [], true);
 const ConfigPlugin = makeExportStripper(
   "ConfigPlugin",
@@ -82,12 +51,15 @@ const ConfigPlugin = makeExportStripper(
   false
 );
 
-const build = async ({ directory, outDir }: TypedFlags<typeof meowFlags>) => {
+const build = async ({ directory, outDir }: TypedFlags<typeof flags>) => {
+  process.stdout.write("building...");
+  const start = Date.now();
   const baseDir = directory ? join(process.cwd(), directory) : process.cwd();
   let baseConfig: ChecklyConfig = {
     locations: [],
     runtimeId: "",
     frequency: 10,
+    on: "chromium",
   };
   try {
     await rm(join(baseDir, outDir), { recursive: true });
@@ -116,6 +88,10 @@ const build = async ({ directory, outDir }: TypedFlags<typeof meowFlags>) => {
   await Promise.all(
     tests.map((test) => buildSingle(baseDir, outDir, baseConfig, test))
   );
+  process.stdout.clearLine(0);
+  process.stdout.cursorTo(0);
+  process.stdout.write(`Build done in ${Date.now() - start}ms`);
+  process.stdout.write("\n");
 };
 
 const buildSingle = async (
@@ -124,10 +100,8 @@ const buildSingle = async (
   baseConfig: ChecklyConfig,
   entry: string
 ) => {
-  const [config, script] = await Promise.all([
-    buildConfig(baseDir, baseConfig, entry),
-    buildScript(baseDir, outBase, baseConfig, entry),
-  ]);
+  const config = await buildConfig(baseDir, baseConfig, entry);
+  const script = await buildScript(baseDir, entry, config.on);
   const outDir = join(
     baseDir,
     outBase,
@@ -145,11 +119,10 @@ const buildSingle = async (
 
 const buildScript = async (
   baseDir: string,
-  outBase: string,
-  baseConfig: ChecklyConfig,
-  entry: string
+  entry: string,
+  on: ChecklyConfig["on"]
 ) => {
-  const handlerEntry = makeHandlerEntry(entry);
+  const handlerEntry = makeHandlerEntry(entry, on);
   const {
     outputFiles: [{ text }],
   } = await esbuild({
@@ -203,25 +176,6 @@ const buildConfig = async (
   }
 };
 
-const collectLocalTests = async (
-  dir: string,
-  result: Set<string> = new Set()
-) => {
-  if (!(await exists(dir, (stats) => stats.isDirectory()))) return result;
-  const filesAndFolders = await readdir(dir);
-  await Promise.all(
-    filesAndFolders.map(async (fileOrFolder) => {
-      const full = join(dir, fileOrFolder);
-      if ((await stat(full)).isDirectory())
-        await collectLocalTests(full, result);
-      else {
-        if (fileOrFolder === "config.json") result.add(dir);
-      }
-    })
-  );
-  return result;
-};
-
 const readLocalTest = (baseDir: string) => async (location: string) => {
   const [config, script] = await Promise.all([
     readJSON(join(location, "config.json")),
@@ -269,7 +223,7 @@ const deploy = async ({
   token,
   groupId,
   accountId,
-}: TypedFlags<typeof meowFlags>) => {
+}: TypedFlags<typeof flags>) => {
   if (!groupId || !directory || !accountId) throw new Error("");
   const groupsApi = new CheckGroupsApi();
   groupsApi.defaultHeaders = {
@@ -354,24 +308,27 @@ const runScript = <T = unknown>(src: string, location: string): T => {
 const main = async () => {
   const {
     input: [command, ...rest],
-    flags,
+    flags: inputFlags,
     showHelp,
     showVersion,
   } = meow(help, {
     booleanDefault: undefined,
     importMeta: import.meta,
-    flags: meowFlags,
+    flags,
   });
 
-  if (flags.help) showHelp();
-  if (flags.version) showVersion();
+  if (inputFlags.help) showHelp();
+  if (inputFlags.version) showVersion();
 
   switch (command) {
     case "build":
-      return build(flags);
+      return build(inputFlags);
     case "deploy":
-      if (!flags.prebuilt) await build(flags);
-      return deploy(flags);
+      if (!inputFlags.prebuilt) await build(inputFlags);
+      return deploy(inputFlags);
+    case "run":
+      if (!inputFlags.prebuilt) await build(inputFlags);
+      return run(inputFlags, rest);
     default:
       throw new Error(`Unknown command: ${command}`);
   }
