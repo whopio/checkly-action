@@ -12,3 +12,4 @@ action.yml
 .github
 shim.js
 tsup.config.ts
+action.d.ts

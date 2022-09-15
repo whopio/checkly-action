@@ -23,6 +23,7 @@ declare module "@whop-sdk/checkly-action" {
   ) => Promise<infer T>
     ? T
     : never;
+
   export interface ChecklyConfig {
     locations: string[];
     runtimeId: string;
