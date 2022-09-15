@@ -6,15 +6,24 @@ import { promisify } from "util";
 import flags from "../flags";
 import { FullChecklyConfig } from "../types";
 import { collectLocalTests } from "../util/common";
+import minimatch from "minimatch";
+
 const exec = promisify(_exec);
 
-const run = async (
-  { outDir, directory }: TypedFlags<typeof flags>,
-  files: string[]
-) => {
+const run = async ({ outDir, directory, filter }: TypedFlags<typeof flags>) => {
   if (!directory) return;
   const testsDirectory = join(directory, outDir);
   const tests = await collectLocalTests(testsDirectory);
+  if (filter)
+    for (const test of tests) {
+      let matched = false;
+      for (const singleFilter of filter)
+        if (minimatch(relative(testsDirectory, test), singleFilter)) {
+          matched = true;
+          break;
+        }
+      if (!matched) tests.delete(test);
+    }
   const total = tests.size;
   let success = 0;
   let failures = 0;
@@ -66,7 +75,7 @@ const runSingle = async (dir: string, name: string) => {
     }
     return result;
   }
-  console.log(`Test (${name}) skipped`);
+  console.log(` | Test (${name}) skipped`);
   return true;
 };
 

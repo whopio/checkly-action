@@ -8,4 +8,5 @@ export default {
   outDir: { type: "string", alias: "out", default: ".checkly" },
   prebuilt: { type: "boolean", default: false },
   recursive: { type: "boolean", default: true },
+  filter: { type: "string", isMultiple: true },
 } as const;
