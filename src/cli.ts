@@ -90,7 +90,9 @@ const build = async ({ directory, outDir }: TypedFlags<typeof flags>) => {
     tests.map((test) => buildSingle(baseDir, outDir, baseConfig, test))
   );
   process.stdout.clearLine && process.stdout.clearLine(0);
-  process.stdout.cursorTo(0);
+  process.stdout.cursorTo
+    ? process.stdout.cursorTo(0)
+    : process.stdout.write("\n");
   process.stdout.write(`Build done in ${Date.now() - start}ms`);
   process.stdout.write("\n");
 };

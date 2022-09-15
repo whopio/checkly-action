@@ -71,7 +71,9 @@ const runSingle = async (dir: string, name: string, verbose: boolean) => {
     }
     const duration = Date.now() - start;
     process.stdout.clearLine && process.stdout.clearLine(0);
-    process.stdout.cursorTo(0);
+    process.stdout.cursorTo
+      ? process.stdout.cursorTo(0)
+      : process.stdout.write("\n");
     if (result) {
       process.stdout.write(` | Test (${name}) success in ${duration}ms`);
       process.stdout.write("\n");
