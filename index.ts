@@ -1,7 +1,8 @@
 import { getInput } from "@actions/core";
 import { exec } from "@actions/exec";
+import { name, version } from "./package.json";
 
-const CHECKLY_ACTION_BIN = "@whop-sdk/checkly-action@0.0.12";
+const CHECKLY_ACTION_BIN = `${name}@${version}`;
 const token = getInput("checkly-token");
 const group = getInput("checkly-group");
 const account = getInput("checkly-account");

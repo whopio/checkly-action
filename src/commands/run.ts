@@ -1,12 +1,11 @@
 import { exec as _exec, ExecException } from "child_process";
 import { readdir, readJSON, stat } from "fs-extra";
 import { TypedFlags } from "meow";
+import minimatch from "minimatch";
 import { dirname, join, parse, relative } from "path";
 import { promisify } from "util";
 import flags from "../flags";
 import { FullChecklyConfig } from "../types";
-import { collectLocalTests } from "../util/common";
-import minimatch from "minimatch";
 
 const exec = promisify(_exec);
 
