@@ -105,11 +105,11 @@ const isExecException = (e: any): e is ActualExecException => {
 
 const parseError = (e: any) => {
   if (isExecException(e)) {
-    const messageParts = e.message.split("\n").reverse();
+    const [, ...messageParts] = e.message.split("\n").reverse();
     const message = [];
     for (const part of messageParts) {
       message.push(part);
-      if (part.startsWith(e.name + ":")) break;
+      if (part.charAt(0) !== " ") break;
     }
     return message.reverse().join("\n");
   }

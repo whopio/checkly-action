@@ -11,3 +11,8 @@ export type FullChecklyConfig = ChecklyConfig & {
   shouldFail: boolean;
   doubleCheck: boolean;
 };
+
+export interface TestingHooks {
+  before: string[];
+  after: string[];
+}
