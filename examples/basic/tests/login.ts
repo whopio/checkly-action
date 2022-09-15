@@ -9,7 +9,7 @@ export const config = {
   activated: false,
   muted: true,
   doubleCheck: true,
-  shouldFail: false,
+  shouldFail: true,
   locations: [],
 };
 
