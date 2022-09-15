@@ -35,8 +35,7 @@ jobs:
           git config --global user.email actions@whop.com
           git checkout -b 'release/v${{ steps.publish.outputs.version }}'
           pnpm action:bundle
-          echo "${{ hashFiles('package.json') }}" >> INTEGREITY
-          git add -A
+          git add --force ./action/index.js
           git commit -m 'release v${{ steps.publish.outputs.version }}'
           git push --set-upstream origin release/v${{ steps.publish.outputs.version }}
           git tag v${{ steps.publish.outputs.version }} release/v${{ steps.publish.outputs.version }}
