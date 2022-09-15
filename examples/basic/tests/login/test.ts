@@ -2,7 +2,7 @@ import type before from "./_before";
 import type { InferContext, FullChecklyConfig } from "@whop-sdk/checkly-action";
 
 export const config: Partial<FullChecklyConfig> = {
-  activated: true,
+  activated: false,
   muted: true,
   doubleCheck: true,
   shouldFail: false,

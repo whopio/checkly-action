@@ -4,7 +4,7 @@ import type before from "./_before";
 export const config = {
   description: "should be able to log in",
   tags: [],
-  activated: true,
+  activated: false,
   muted: true,
   doubleCheck: true,
   shouldFail: false,
