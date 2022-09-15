@@ -1,9 +1,7 @@
 import type before from "./_before";
-import type { InferContext } from "@whop-sdk/checkly-action";
+import type { InferContext, FullChecklyConfig } from "@whop-sdk/checkly-action";
 
-export const config = {
-  description: "should be able to log in",
-  tags: [],
+export const config: Partial<FullChecklyConfig> = {
   activated: true,
   muted: true,
   doubleCheck: true,
