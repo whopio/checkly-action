@@ -9,6 +9,5 @@ type InferContext<P extends (ctx: any) => Promise<any>> = P extends (
 export default async (ctx: InferContext<typeof prev>) => {
   return {
     ...ctx,
-    page: await ctx.context.newPage(),
   };
 };

@@ -6,11 +6,12 @@ import fileName, { release } from "./test.har";
 export const config = {
   description: "should be able to log in",
   tags: [],
-  activated: false,
+  activated: true,
   muted: true,
   doubleCheck: true,
-  shouldFail: false,
+  shouldFail: true,
   locations: [],
+  on: "firefox",
 };
 
 export default async () => {

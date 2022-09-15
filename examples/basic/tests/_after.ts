@@ -6,7 +6,6 @@ interface DefaultContext {
 }
 
 export default async (ctx: DefaultContext) => {
-  console.log("after");
   await ctx.browser.close();
   return ctx;
 };

@@ -1,4 +1,4 @@
-import { Browser, BrowserContext, Page } from "playwright";
+import { Browser, BrowserContext, chromium, Page } from "playwright";
 
 interface DefaultContext {
   browser: Browser;
@@ -6,5 +6,8 @@ interface DefaultContext {
 }
 
 export default async (ctx: DefaultContext) => {
-  return ctx;
+  return {
+    ...ctx,
+    page: await ctx.context.newPage(),
+  };
 };
