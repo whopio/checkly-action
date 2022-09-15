@@ -11,6 +11,7 @@ export const config = {
   doubleCheck: true,
   shouldFail: true,
   locations: [],
+  on: "firefox",
 };
 
 export default async () => {

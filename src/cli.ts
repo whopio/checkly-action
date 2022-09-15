@@ -18,7 +18,7 @@ import { runInNewContext } from "vm";
 import { CheckGroupCheck, CheckGroupsApi, ChecksApi } from "./checkly/api";
 import run from "./commands/run";
 import flags from "./flags";
-import { ChecklyConfig, FullChecklyConfig } from "./types";
+import { ChecklyConfig, FullChecklyConfig, TestingHooks } from "./types";
 import BinaryLoader from "./util/binary-loader";
 import { collectLocalTests, exists } from "./util/common";
 import { makeExportStripper } from "./util/export-stripper";
@@ -27,10 +27,27 @@ const help = `
 Get help brother
 `;
 
-const makeHandlerEntry = (path: string, on: ChecklyConfig["on"]) => `
+const makeHandlerEntry = (
+  path: string,
+  on: ChecklyConfig["on"],
+  hooks: TestingHooks
+) => `
 import handler from "test:./${path}";
+import { ${on} } from "playwright";
 
-export default handler();
+const _before = [${hooks.before.map((hook) => `import("./${hook}")`)}];
+const _after = [${hooks.after.map((hook) => `import("./${hook}")`)}];
+
+(async () => {
+  const browser = await ${on}.launch();
+  let ctx = {
+    browser,
+    context: await browser.newContext()
+  };
+  for (const before of _before) ctx = await (await before).default(ctx);
+  await handler(ctx);
+  for (const after of _after) await (await after).default(ctx);
+})();
 `;
 
 const makeConfigEntry = (path: string) => `
@@ -78,7 +95,7 @@ const build = async ({ directory, outDir }: TypedFlags<typeof flags>) => {
       if ((await stat(join(baseDir, full))).isDirectory()) {
         await collect(full, result);
       } else if (full.endsWith(".ts") || full.endsWith(".js")) {
-        result.push(full);
+        if (!fileOrFolder.startsWith("_")) result.push(full);
       }
     }
     return result;
@@ -120,12 +137,45 @@ const buildSingle = async (
   );
 };
 
+const findHooks = async (
+  baseDir: string,
+  entry: string
+): Promise<TestingHooks> => {
+  const folders = dirname(entry).split("/");
+  const before: string[] = [];
+  const after: string[] = [];
+  for (const idx in folders) {
+    const path = folders.slice(0, parseInt(idx) + 1).join("/");
+    if (
+      await exists(join(baseDir, path, "_before.ts"), (stats) => stats.isFile())
+    )
+      before.push(join(relative(baseDir, join(baseDir, path, "_before.ts"))));
+    else if (
+      await exists(join(baseDir, path, "_before.js"), (stats) => stats.isFile())
+    )
+      before.push(join(relative(baseDir, join(baseDir, path, "_before.js"))));
+    if (
+      await exists(join(baseDir, path, "_after.ts"), (stats) => stats.isFile())
+    )
+      after.push(join(relative(baseDir, join(baseDir, path, "_after.ts"))));
+    else if (
+      await exists(join(baseDir, path, "_after.js"), (stats) => stats.isFile())
+    )
+      after.push(join(relative(baseDir, join(baseDir, path, "_after.js"))));
+  }
+  return {
+    before,
+    after: after.reverse(),
+  };
+};
+
 const buildScript = async (
   baseDir: string,
   entry: string,
   on: ChecklyConfig["on"]
 ) => {
-  const handlerEntry = makeHandlerEntry(entry, on);
+  const hooks = await findHooks(baseDir, entry);
+  const handlerEntry = makeHandlerEntry(entry, on, hooks);
   const {
     outputFiles: [{ text }],
   } = await esbuild({

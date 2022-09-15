@@ -13,6 +13,7 @@ specifiers:
   fs-extra: ^10.1.0
   meow: ^10.1.3
   minimatch: ^5.1.0
+  playwright: ^1.25.2
   request: ^2.88.2
   tsup: ^6.2.3
   typescript: ^4.8.2
@@ -33,6 +34,7 @@ devDependencies:
   '@types/node': 18.7.16
   '@types/request': 2.48.8
   fs-extra: 10.1.0
+  playwright: 1.25.2
   tsup: 6.2.3_hxjrr7w7iwkhqahktb2yvaczfq
   typescript: 4.8.2
 
@@ -484,6 +486,7 @@ packages:
     resolution: {integrity: sha512-XnAIvQ8eM+kC6aULx6wuQiwVsnzsi9d3WxzV3FpWTGA19F621kwdbsAcFKXgKUHZWsy+mY6iL1sHTxWEFCytDA==}
     dependencies:
       balanced-match: 1.0.2
+    dev: false
 
   /braces/3.0.2:
     resolution: {integrity: sha512-b8um+L1RzM3WDSzvhm6gIz1yfTbBt6YTlcEKAvsmqCZZFw46z626lVj9j1yEPW33H5H+lBQpZMP1k8l+78Ha0A==}
@@ -1430,6 +1433,21 @@ packages:
   /pirates/4.0.5:
     resolution: {integrity: sha512-8V9+HQPupnaXMA23c5hvl69zXvTwTzyAYasnkb0Tts4XvO4CliqONMOnvlq26rkhLC3nWDFBJf73LU1e1VZLaQ==}
     engines: {node: '>= 6'}
+    dev: true
+
+  /playwright-core/1.25.2:
+    resolution: {integrity: sha512-0yTbUE9lIddkEpLHL3u8PoCL+pWiZtj5A/j3U7YoNjcmKKDGBnCrgHJMzwd2J5vy6l28q4ki3JIuz7McLHhl1A==}
+    engines: {node: '>=14'}
+    hasBin: true
+    dev: true
+
+  /playwright/1.25.2:
+    resolution: {integrity: sha512-RwMB5SFRV/8wSfK+tK8ycpqdzORvoqUNz9DUeRfSgZFrZej5uuBl9wFjWcc+OkXFEtaPmx1acAVGG7hA4IJ1kg==}
+    engines: {node: '>=14'}
+    hasBin: true
+    requiresBuild: true
+    dependencies:
+      playwright-core: 1.25.2
     dev: true
 
   /postcss-load-config/3.1.4:
