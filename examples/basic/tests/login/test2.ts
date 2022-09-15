@@ -1,5 +1,5 @@
-import { InferContext } from "@whop-sdk/checkly-action";
 import type before from "./_before";
+import type { InferContext } from "@whop-sdk/checkly-action";
 
 export const config = {
   description: "should be able to log in",

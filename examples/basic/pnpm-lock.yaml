@@ -1,10 +1,12 @@
 lockfileVersion: 5.4
 
 specifiers:
+  '@types/node': ^18.7.18
   expect: ^29.0.2
   playwright: ^1.25.2
 
 devDependencies:
+  '@types/node': 18.7.18
   expect: 29.0.2
   playwright: 1.25.2
 
@@ -52,7 +54,7 @@ packages:
       '@jest/schemas': 29.0.0
       '@types/istanbul-lib-coverage': 2.0.4
       '@types/istanbul-reports': 3.0.1
-      '@types/node': 18.7.16
+      '@types/node': 18.7.18
       '@types/yargs': 17.0.12
       chalk: 4.1.2
     dev: true
@@ -77,8 +79,8 @@ packages:
       '@types/istanbul-lib-report': 3.0.0
     dev: true
 
-  /@types/node/18.7.16:
-    resolution: {integrity: sha512-EQHhixfu+mkqHMZl1R2Ovuvn47PUw18azMJOTwSZr9/fhzHNGXAJ0ma0dayRVchprpCj0Kc1K1xKoWaATWF1qg==}
+  /@types/node/18.7.18:
+    resolution: {integrity: sha512-m+6nTEOadJZuTPkKR/SYK3A2d7FZrgElol9UP1Kae90VVU4a6mxnPuLiIW1m4Cq4gZ/nWb9GrdVXJCoCazDAbg==}
     dev: true
 
   /@types/stack-utils/2.0.1:
@@ -260,7 +262,7 @@ packages:
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
     dependencies:
       '@jest/types': 29.0.2
-      '@types/node': 18.7.16
+      '@types/node': 18.7.18
       chalk: 4.1.2
       ci-info: 3.4.0
       graceful-fs: 4.2.10
