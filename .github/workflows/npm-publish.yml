@@ -25,5 +25,18 @@ jobs:
       - name: Install Node Modules
         run: pnpm i
       - uses: JS-DevTools/npm-publish@v1
+        id: publish
         with:
           token: ${{ secrets.NPM_TOKEN }}
+      - if: steps.publish.outputs.type != 'none'
+        run: |
+          git config --global user.name "${{ env.CI_COMMIT_AUTHOR }}"
+          git config --global user.email "${{ env.CI_COMMIT_AUTHOR_EMAIL }}"
+          git checkout -b 'release/v${{ steps.publish.outputs.version }}'
+          pnpm action:bundle
+          echo "${{ hashFiles('action/index.js') }}"" >> INTEGREITY
+          git add -A
+          git commit -m 'release v${{ steps.publish.outputs.version }}'
+          git push --set-upstream origin release/v${{ steps.publish.outputs.version }}
+          git tag v${{ steps.publish.outputs.version }} release/v${{ steps.publish.outputs.version }}
+          git push origin v${{ steps.publish.outputs.version }}
