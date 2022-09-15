@@ -1,4 +1,5 @@
-import { readFile } from "fs/promises";
+import { promises } from "fs";
+const { readFile } = promises;
 import fileName, { release } from "./test.har";
 
 // TODO: set activated to false
