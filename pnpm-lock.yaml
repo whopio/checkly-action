@@ -6,11 +6,13 @@ specifiers:
   '@actions/github': ^5.0.3
   '@swc/core': ^1.2.249
   '@types/fs-extra': ^9.0.13
+  '@types/minimatch': ^5.1.2
   '@types/node': ^18.7.16
   '@types/request': ^2.48.8
   esbuild: ^0.15.7
   fs-extra: ^10.1.0
   meow: ^10.1.3
+  minimatch: ^5.1.0
   request: ^2.88.2
   tsup: ^6.2.3
   typescript: ^4.8.2
@@ -19,6 +21,7 @@ dependencies:
   '@swc/core': 1.2.249
   esbuild: 0.15.7
   meow: 10.1.3
+  minimatch: 5.1.0
   request: 2.88.2
 
 devDependencies:
@@ -26,6 +29,7 @@ devDependencies:
   '@actions/exec': 1.1.1
   '@actions/github': 5.0.3
   '@types/fs-extra': 9.0.13
+  '@types/minimatch': 5.1.2
   '@types/node': 18.7.16
   '@types/request': 2.48.8
   fs-extra: 10.1.0
@@ -362,6 +366,10 @@ packages:
       '@types/node': 18.7.16
     dev: true
 
+  /@types/minimatch/5.1.2:
+    resolution: {integrity: sha512-K0VQKziLUWkVKiRVrx4a40iPaxTUefQmjtkQofBkYRcoaaL/8rhwDWww9qWbrgicNOgnpIsMxyNIUM4+n6dUIA==}
+    dev: true
+
   /@types/minimist/1.2.2:
     resolution: {integrity: sha512-jhuKLIRrhvCPLqwPcx6INqmKeiA5EWrsCOPhrlFSrbrmU4ZMPjj5Ul/oLCMDO98XRUIwVm78xICz4EPCektzeQ==}
     dev: false
@@ -449,7 +457,6 @@ packages:
 
   /balanced-match/1.0.2:
     resolution: {integrity: sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==}
-    dev: true
 
   /bcrypt-pbkdf/1.0.2:
     resolution: {integrity: sha512-qeFIXtP4MSoi6NLqO12WfqARWWuCKi2Rn/9hJLEmtB5yTNr9DqFWkJRCf2qShWzPeAMRnOgCrq0sg/KLv5ES9w==}
@@ -472,6 +479,11 @@ packages:
       balanced-match: 1.0.2
       concat-map: 0.0.1
     dev: true
+
+  /brace-expansion/2.0.1:
+    resolution: {integrity: sha512-XnAIvQ8eM+kC6aULx6wuQiwVsnzsi9d3WxzV3FpWTGA19F621kwdbsAcFKXgKUHZWsy+mY6iL1sHTxWEFCytDA==}
+    dependencies:
+      balanced-match: 1.0.2
 
   /braces/3.0.2:
     resolution: {integrity: sha512-b8um+L1RzM3WDSzvhm6gIz1yfTbBt6YTlcEKAvsmqCZZFw46z626lVj9j1yEPW33H5H+lBQpZMP1k8l+78Ha0A==}
@@ -1277,6 +1289,13 @@ packages:
     dependencies:
       brace-expansion: 1.1.11
     dev: true
+
+  /minimatch/5.1.0:
+    resolution: {integrity: sha512-9TPBGGak4nHfGZsPBohm9AWg6NoT7QTCehS3BIJABslyZbzxfV78QM2Y6+i741OPZIafFAaiiEMh5OyIrJPgtg==}
+    engines: {node: '>=10'}
+    dependencies:
+      brace-expansion: 2.0.1
+    dev: false
 
   /minimist-options/4.1.0:
     resolution: {integrity: sha512-Q4r8ghd80yhO/0j1O3B2BjweX3fiHg9cdOwjJd2J76Q135c+NDxGCqdYKQ1SKBuFfgWbAUzBfvYjPUEeNgqN1A==}

@@ -328,7 +328,7 @@ const main = async () => {
       return deploy(inputFlags);
     case "run":
       if (!inputFlags.prebuilt) await build(inputFlags);
-      return run(inputFlags, rest);
+      return run(inputFlags);
     default:
       throw new Error(`Unknown command: ${command}`);
   }
