@@ -1,4 +1,4 @@
-import { exec as _exec } from "child_process";
+import { exec as _exec, ExecException } from "child_process";
 import { readJSON } from "fs-extra";
 import { TypedFlags } from "meow";
 import { join, relative } from "path";
@@ -10,11 +10,16 @@ import minimatch from "minimatch";
 
 const exec = promisify(_exec);
 
-const run = async ({ outDir, directory, filter }: TypedFlags<typeof flags>) => {
+const run = async ({
+  outDir,
+  directory,
+  filter,
+  verbose,
+}: TypedFlags<typeof flags>) => {
   if (!directory) return;
   const testsDirectory = join(directory, outDir);
   const tests = await collectLocalTests(testsDirectory);
-  if (filter)
+  if (filter && filter.length)
     for (const test of tests) {
       let matched = false;
       for (const singleFilter of filter)
@@ -30,7 +35,9 @@ const run = async ({ outDir, directory, filter }: TypedFlags<typeof flags>) => {
   console.log(`Running ${total} test${total !== 1 ? "s" : ""}`);
   const start = Date.now();
   for (const test of tests) {
-    if (await runSingle(testsDirectory, relative(testsDirectory, test)))
+    if (
+      await runSingle(testsDirectory, relative(testsDirectory, test), verbose)
+    )
       success++;
     else failures++;
   }
@@ -39,7 +46,7 @@ const run = async ({ outDir, directory, filter }: TypedFlags<typeof flags>) => {
   );
 };
 
-const runSingle = async (dir: string, name: string) => {
+const runSingle = async (dir: string, name: string, verbose: boolean) => {
   const sourceDir = join(dir, name);
   const { activated, shouldFail } = (await readJSON(
     join(sourceDir, "config.json")
@@ -71,12 +78,40 @@ const runSingle = async (dir: string, name: string) => {
     } else {
       process.stdout.write(` | Test (${name}) failure in ${duration}ms`);
       process.stdout.write("\n");
-      console.log(error);
+      if (verbose)
+        console.log(
+          parseError(error)
+            .split("\n")
+            .map((part) => ` | | ${part}`)
+            .join("\n")
+        );
     }
     return result;
   }
   console.log(` | Test (${name}) skipped`);
   return true;
+};
+
+interface ActualExecException extends ExecException {
+  stdout: string;
+  stderr: string;
+}
+
+const isExecException = (e: any): e is ActualExecException => {
+  return e instanceof Error && "stderr" in e;
+};
+
+const parseError = (e: any) => {
+  if (isExecException(e)) {
+    const messageParts = e.message.split("\n").reverse();
+    const message = [];
+    for (const part of messageParts) {
+      message.push(part);
+      if (part.startsWith(e.name + ":")) break;
+    }
+    return message.reverse().join("\n");
+  }
+  return "Unknown Error";
 };
 
 export default run;
