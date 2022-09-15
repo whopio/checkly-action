@@ -56,11 +56,8 @@ const run = async ({
   if (!directory) return;
   const testsDirectory = join(directory, outDir);
   const tests2 = await collectTests(testsDirectory, filter);
-  console.log(
-    `Running ${tests2.folders.length} Task${
-      tests2.folders.length !== 1 ? "s" : ""
-    }`
-  );
+  const totalTests = countCollectionTasks(tests2);
+  console.log(`Running ${totalTests} Task${totalTests !== 1 ? "s" : ""}`);
   const start = Date.now();
   const { success, total } = await runCollection(
     testsDirectory,
@@ -85,20 +82,23 @@ const runCollection = async (
     total: 0,
   }
 ) => {
+  let subtasks = countCollectionTasks(collection);
   if (collection.files.find((item) => item.endsWith("/config.json"))) {
     result.total++;
+    subtasks--;
     if (await runTest(collection.name, verbose, prefix)) {
       result.success++;
     }
   }
 
-  if (collection.folders.length) {
+  if (subtasks) {
     const name = relative(baseDir, collection.name);
     if (name)
       console.log(
-        `${prefix}Sub-Task (${relative(baseDir, collection.name)}) with ${
-          collection.folders.length
-        } Task${collection.folders.length !== 1 ? "s" : ""}`
+        `${prefix}Sub-Task (${relative(
+          baseDir,
+          collection.name
+        )}) with ${subtasks} Task${subtasks !== 1 ? "s" : ""}`
       );
     const start = Date.now();
     for (const folder of collection.folders) {
@@ -120,6 +120,14 @@ const runCollection = async (
   }
 
   return result;
+};
+
+const countCollectionTasks = (collection: TestCollection) => {
+  let total = 0;
+  if (collection.files.length) total++;
+  for (const folder of collection.folders)
+    total += countCollectionTasks(folder);
+  return total;
 };
 
 const runTest = async (dir: string, verbose: boolean, prefix: string) => {
