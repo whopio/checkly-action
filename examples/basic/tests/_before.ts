@@ -1,9 +1,4 @@
-import { Browser, BrowserContext, chromium, Page } from "playwright";
-
-interface DefaultContext {
-  browser: Browser;
-  context: BrowserContext;
-}
+import type { DefaultContext } from "@whop-sdk/checkly-action";
 
 export default async (ctx: DefaultContext) => {
   return {

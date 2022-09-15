@@ -1,12 +1,8 @@
 import type prev from "../_before";
-
-type InferContext<P extends (ctx: any) => Promise<any>> = P extends (
-  ctx: any
-) => Promise<infer T>
-  ? T
-  : never;
+import type { InferContext } from "@whop-sdk/checkly-action";
 
 export default async (ctx: InferContext<typeof prev>) => {
+  ctx.page;
   return {
     ...ctx,
   };

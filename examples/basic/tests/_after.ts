@@ -1,11 +1,8 @@
-import { Browser, BrowserContext } from "playwright";
-
-interface DefaultContext {
-  browser: Browser;
-  context: BrowserContext;
-}
+import type { DefaultContext } from "@whop-sdk/checkly-action";
 
 export default async (ctx: DefaultContext) => {
-  await ctx.browser.close();
-  return ctx;
+  return {
+    ...ctx,
+    page: await ctx.context.newPage(),
+  };
 };

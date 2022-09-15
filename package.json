@@ -1,6 +1,6 @@
 {
   "name": "@whop-sdk/checkly-action",
-  "version": "0.0.12",
+  "version": "0.1.0",
   "description": "Sync a repository with a checkly group.",
   "private": false,
   "scripts": {
@@ -34,5 +34,6 @@
     "request": "^2.88.2"
   },
   "module": "./dist/cli.mjs",
-  "bin": "./dist/cli.mjs"
+  "bin": "./dist/cli.mjs",
+  "types": "./types.d.ts"
 }
