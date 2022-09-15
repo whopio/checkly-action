@@ -1,18 +1,8 @@
 import { parse, transform } from "@swc/core";
-import { PluginBuild, Plugin } from "esbuild";
 import { readFile } from "fs-extra";
 import { dirname, join, relative } from "path";
 import { stripExports } from "./ast";
-
-export const makeESBuildPlugin = (
-  name: string,
-  buildHook: (build: PluginBuild) => any
-): Plugin => ({
-  name,
-  setup(build) {
-    return buildHook(build);
-  },
-});
+import { makeESBuildPlugin } from "./esbuild-plugin";
 
 const swcOptions = {
   jsc: {

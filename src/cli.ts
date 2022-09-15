@@ -19,6 +19,7 @@ import { CheckGroupCheck, CheckGroupsApi, ChecksApi } from "./checkly/api";
 import run from "./commands/run";
 import flags from "./flags";
 import { ChecklyConfig, FullChecklyConfig } from "./types";
+import BinaryLoader from "./util/binary-loader";
 import { collectLocalTests, exists } from "./util/common";
 import { makeExportStripper } from "./util/export-stripper";
 
@@ -76,7 +77,7 @@ const build = async ({ directory, outDir }: TypedFlags<typeof flags>) => {
       const full = join(dir, fileOrFolder);
       if ((await stat(join(baseDir, full))).isDirectory()) {
         await collect(full, result);
-      } else {
+      } else if (full.endsWith(".ts") || full.endsWith(".js")) {
         result.push(full);
       }
     }
@@ -135,7 +136,10 @@ const buildScript = async (
     write: false,
     format: "cjs",
     external: [...builtinModules, "playwright", "expect", "puppeteer"],
-    plugins: [HandlerPlugin(baseDir)],
+    plugins: [
+      BinaryLoader(/.\/.*.(har|json)$/, dirname(join(baseDir, entry))),
+      HandlerPlugin(baseDir),
+    ],
     target: "node16",
     bundle: true,
     minify: true,
@@ -162,7 +166,10 @@ const buildConfig = async (
       write: false,
       format: "cjs",
       external: [...builtinModules],
-      plugins: [ConfigPlugin(baseDir)],
+      plugins: [
+        BinaryLoader(/.\/.*.(har|json)$/, dirname(join(baseDir, entry))),
+        ConfigPlugin(baseDir),
+      ],
       target: "node16",
       bundle: true,
     });

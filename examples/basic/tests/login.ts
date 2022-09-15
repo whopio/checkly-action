@@ -1,4 +1,5 @@
-import { chromium } from "playwright";
+import { readFile } from "fs/promises";
+import fileName, { release } from "./test.har";
 
 // TODO: set activated to false
 export const config = {
@@ -12,5 +13,7 @@ export const config = {
 };
 
 export default async () => {
+  console.log(await fileName(), (await readFile(await fileName())).toString());
+  await release();
   throw new Error("test error");
 };
