@@ -3,6 +3,8 @@ name: Sync Check Group
 on:
   push:
     branches: [main]
+    paths:
+      - examples
 
 jobs:
   sync:
