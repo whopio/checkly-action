@@ -12,5 +12,5 @@ export const config = {
 };
 
 export default async (ctx: InferContext<typeof before>) => {
-  await ctx.page.goto("https://google.com");
+  await ctx.page.goto(process.env.SITE_URL!);
 };

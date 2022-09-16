@@ -6,6 +6,7 @@ import { dirname, join, parse, relative } from "path";
 import { promisify } from "util";
 import flags from "../flags";
 import { FullChecklyConfig } from "../types";
+import { config } from "dotenv";
 
 const exec = promisify(_exec);
 
@@ -53,6 +54,9 @@ const run = async ({
   verbose,
 }: TypedFlags<typeof flags>) => {
   if (!directory) return;
+  try {
+    config({ path: join(directory, ".env") });
+  } catch {}
   const testsDirectory = join(directory, outDir);
   const tests2 = await collectTests(testsDirectory, filter);
   const totalTests = countCollectionTasks(tests2);
