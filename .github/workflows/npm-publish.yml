@@ -7,7 +7,6 @@ on:
     paths:
       - package.json
 
-
 jobs:
   publish:
     runs-on: ubuntu-latest
