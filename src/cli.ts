@@ -188,10 +188,7 @@ const buildScript = async (
     write: false,
     format: "cjs",
     external: [...builtinModules, "playwright", "expect", "puppeteer"],
-    plugins: [
-      BinaryLoader(/.\/.*.(har|json)$/, dirname(join(baseDir, entry))),
-      HandlerPlugin(baseDir),
-    ],
+    plugins: [BinaryLoader(/.\/.*.(har|json)$/), HandlerPlugin(baseDir)],
     target: "node16",
     bundle: true,
     minify: true,
@@ -218,10 +215,7 @@ const buildConfig = async (
       write: false,
       format: "cjs",
       external: [...builtinModules],
-      plugins: [
-        BinaryLoader(/.\/.*.(har|json)$/, dirname(join(baseDir, entry))),
-        ConfigPlugin(baseDir),
-      ],
+      plugins: [BinaryLoader(/.\/.*.(har|json)$/), ConfigPlugin(baseDir)],
       target: "node16",
       bundle: true,
     });
