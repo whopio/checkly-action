@@ -30,16 +30,16 @@ export default async () => {
 }
 `;
 
-const BinaryLoader = (filter: RegExp, dir: string) => {
+const BinaryLoader = (filter: RegExp) => {
   return makeESBuildPlugin("BinaryLoader", (build) => {
     build.onResolve({ filter }, async (args) => {
       return {
         namespace: "binary",
-        path: args.path,
+        path: join(args.resolveDir, args.path),
       };
     });
     build.onLoad({ filter: /.*/, namespace: "binary" }, async (args) => {
-      const data = (await readFile(join(dir, args.path))).toString("base64");
+      const data = (await readFile(args.path)).toString("base64");
       const { ext } = parse(args.path);
       return {
         contents: LoaderEntry(data, ext),
