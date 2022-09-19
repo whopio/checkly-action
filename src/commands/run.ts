@@ -204,8 +204,8 @@ const parseError = (e: any) => {
     const [, ...messageParts] = e.message.split("\n").reverse();
     const message = [];
     for (const part of messageParts) {
+      if (part === "") break;
       message.push(part);
-      if (part.charAt(0) !== " ") break;
     }
     return message.reverse().join("\n");
   }
