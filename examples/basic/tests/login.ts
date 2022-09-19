@@ -17,5 +17,5 @@ export const config = {
 export default async () => {
   console.log(await fileName(), (await readFile(await fileName())).toString());
   await release();
-  throw new Error("test error");
+  throw new Error("test error.");
 };
