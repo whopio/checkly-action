@@ -10,4 +10,5 @@ export default {
   recursive: { type: "boolean", default: true },
   filter: { type: "string", isMultiple: true },
   verbose: { type: "boolean", default: false },
+  head: { type: "boolean", default: false },
 } as const;

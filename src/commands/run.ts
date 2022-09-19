@@ -52,6 +52,7 @@ const run = async ({
   directory,
   filter,
   verbose,
+  head,
 }: TypedFlags<typeof flags>) => {
   if (!directory) return;
   try {
@@ -67,6 +68,7 @@ const run = async ({
     tests2,
     verbose,
     "",
+    head,
     filter
   );
   console.log(
@@ -79,6 +81,7 @@ const runCollection = async (
   collection: TestCollection,
   verbose: boolean,
   prefix: string,
+  head: boolean,
   filter?: string[],
   result: { success: number; total: number } = {
     success: 0,
@@ -89,7 +92,7 @@ const runCollection = async (
   if (collection.files.find((item) => item.endsWith("/config.json"))) {
     result.total++;
     subtasks--;
-    if (await runTest(collection.name, verbose, prefix)) {
+    if (await runTest(collection.name, verbose, prefix, head)) {
       result.success++;
     }
   }
@@ -110,6 +113,7 @@ const runCollection = async (
         folder,
         verbose,
         prefix ? prefix + "| " : " | ",
+        head,
         filter,
         result
       );
@@ -133,7 +137,12 @@ const countCollectionTasks = (collection: TestCollection) => {
   return total;
 };
 
-const runTest = async (dir: string, verbose: boolean, prefix: string) => {
+const runTest = async (
+  dir: string,
+  verbose: boolean,
+  prefix: string,
+  head: boolean
+) => {
   const { name } = parse(dir);
   const { activated, shouldFail } = (await readJSON(
     join(dir, "config.json")
@@ -144,7 +153,7 @@ const runTest = async (dir: string, verbose: boolean, prefix: string) => {
     process.stdout.write(`${prefix}Task (${name}) running`);
     const start = Date.now();
     try {
-      await exec(`node ./${join(dir, "script.js")}`);
+      await exec(`node ./${join(dir, "script.js")} ${head ? "--head" : ""}`);
       if (shouldFail) {
         result = false;
         error = "Expected test to fail but test succeeded";
