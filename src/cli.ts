@@ -39,7 +39,7 @@ const _before = [${hooks.before.map((hook) => `import("./${hook}")`)}];
 const _after = [${hooks.after.map((hook) => `import("./${hook}")`)}];
 
 (async () => {
-  const browser = await ${on}.launch();
+  const browser = await ${on}.launch({ headless: !process.argv.includes("--head") });
   let ctx = {
     browser,
     context: await browser.newContext()
