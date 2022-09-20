@@ -12,5 +12,6 @@ export const config = {
 };
 
 export default async (ctx: InferContext<typeof before>) => {
+  console.log("test");
   await ctx.page.goto(process.env.SITE_URL!);
 };
