@@ -1,4 +1,5 @@
 import { exec as _exec, ExecException } from "child_process";
+import { config } from "dotenv";
 import { readdir, readJSON, stat } from "fs-extra";
 import { TypedFlags } from "meow";
 import minimatch from "minimatch";
@@ -6,7 +7,6 @@ import { dirname, join, parse, relative } from "path";
 import { promisify } from "util";
 import flags from "../flags";
 import { FullChecklyConfig } from "../types";
-import { config } from "dotenv";
 
 const exec = promisify(_exec);
 
@@ -53,6 +53,7 @@ const run = async ({
   filter,
   verbose,
   head,
+  stdout,
 }: TypedFlags<typeof flags>) => {
   if (!directory) return;
   try {
@@ -69,6 +70,7 @@ const run = async ({
     verbose,
     "",
     head,
+    stdout,
     filter
   );
   console.log(
@@ -82,6 +84,7 @@ const runCollection = async (
   verbose: boolean,
   prefix: string,
   head: boolean,
+  stdout: boolean,
   filter?: string[],
   result: { success: number; total: number } = {
     success: 0,
@@ -92,7 +95,7 @@ const runCollection = async (
   if (collection.files.find((item) => item.endsWith("/config.json"))) {
     result.total++;
     subtasks--;
-    if (await runTest(collection.name, verbose, prefix, head)) {
+    if (await runTest(collection.name, verbose, stdout, prefix, head)) {
       result.success++;
     }
   }
@@ -114,6 +117,7 @@ const runCollection = async (
         verbose,
         prefix ? prefix + "| " : " | ",
         head,
+        stdout,
         filter,
         result
       );
@@ -140,6 +144,7 @@ const countCollectionTasks = (collection: TestCollection) => {
 const runTest = async (
   dir: string,
   verbose: boolean,
+  stdout: boolean,
   prefix: string,
   head: boolean
 ) => {
@@ -150,17 +155,23 @@ const runTest = async (
   let result: boolean;
   if (activated) {
     let error: string | Error = "";
+    let logs: string = "";
     process.stdout.write(`${prefix}Task (${name}) running`);
     const start = Date.now();
     try {
-      await exec(`node ./${join(dir, "script.js")} ${head ? "--head" : ""}`);
+      const { stdout: output } = await exec(
+        `node ./${join(dir, "script.js")} ${head ? "--head" : ""}`
+      );
+      logs = output;
       if (shouldFail) {
         result = false;
         error = "Expected test to fail but test succeeded";
       } else result = true;
     } catch (e) {
-      if (shouldFail) result = true;
-      else {
+      if (shouldFail) {
+        result = true;
+        if (isExecException(e)) logs = e.stdout;
+      } else {
         result = false;
         error = e instanceof Error ? e : "Unknown Error";
       }
@@ -171,15 +182,20 @@ const runTest = async (
       ? process.stdout.cursorTo(0)
       : process.stdout.write("\n");
     if (result) {
-      process.stdout.write(`${prefix}Task (${name}) success in ${duration}ms`);
-      process.stdout.write("\n");
+      process.stdout.write(
+        `${prefix}Task (${name}) success in ${duration}ms\n`
+      );
+      if (stdout)
+        logs
+          .split("\n")
+          .forEach((line) => line && console.log(`${prefix}| ${line}`));
     } else {
-      process.stdout.write(`${prefix}Task (${name}) failure in ${duration}ms`);
-      process.stdout.write("\n");
+      process.stdout.write(
+        `${prefix}Task (${name}) failure in ${duration}ms\n`
+      );
       if (verbose)
         console.log(
           parseError(error)
-            .split("\n")
             .map((part) => `${prefix}| ${part}`)
             .join("\n")
         );
@@ -199,17 +215,11 @@ const isExecException = (e: any): e is ActualExecException => {
   return e instanceof Error && "stderr" in e;
 };
 
-const parseError = (e: any) => {
+const parseError = (e: any): string[] => {
   if (isExecException(e)) {
-    const [, ...messageParts] = e.message.split("\n").reverse();
-    const message = [];
-    for (const part of messageParts) {
-      if (part === "") break;
-      message.push(part);
-    }
-    return message.reverse().join("\n");
+    return e.message.split("\n").slice(5, -1);
   }
-  return "Unknown Error";
+  return ["Unknown Error"];
 };
 
 export default run;

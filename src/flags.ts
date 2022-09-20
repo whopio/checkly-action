@@ -11,4 +11,5 @@ export default {
   filter: { type: "string", isMultiple: true },
   verbose: { type: "boolean", default: false },
   head: { type: "boolean", default: false },
+  stdout: { type: "boolean", default: false },
 } as const;
