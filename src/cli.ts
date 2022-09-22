@@ -281,22 +281,23 @@ const getAllChecks = async (
 const remoteScriptEntry = ({ url, hash }: { url: string; hash: string }) => `
 import { request } from "playwright";
 import { createHash } from "crypto";
+import { promises } from "fs";
+const { writeFile } = promises;
 
-const downloadScript = async (url: string) => (
-  await (
-    await (
-      await request.newContext()
-    ).get(url)
-  ).body()
-).toString();
+const downloadScript = async (url: string, hash: string) => {
+  const client = await request.newContext();
+  const res = await client.get(url);
+  if (!(res.ok())) throw new Error("DownloadError: " + res.statusText);
+  const body = await res.body();
+  if (createHash("sha256").update(body).digest("hex") !== hash) throw new Error("DownloadError: Hash mismatch");
+  const key = "./" + hash + ".js";
+  await writeFile(key, body);
+  return key;
+}
 
 (async () => {
-  const src = await downloadScript("${url}");
-  if (createHash("sha256").update(src).digest("hex") !== "${hash}") throw new Error("DownloadError: Hash mismatch");
-  if (src) {
-    const script = (0, eval)("(exports, require, module, __dirname, __filename) => {" + src + "}");
-    script(module.exports, require, module, __dirname, __filename);
-  }
+  const src = await downloadScript("${url}", "${hash}");
+  require(src);
 })();
 `;
 
