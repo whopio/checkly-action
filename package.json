@@ -1,6 +1,6 @@
 {
   "name": "@whop-sdk/checkly-action",
-  "version": "0.1.2-canary.0",
+  "version": "0.2.0-canary.0",
   "description": "Sync a repository with a checkly group.",
   "private": false,
   "scripts": {
@@ -29,6 +29,7 @@
   },
   "dependencies": {
     "@swc/core": "^1.2.249",
+    "aws-sdk": "^2.1220.0",
     "dotenv": "^16.0.2",
     "esbuild": "^0.15.7",
     "meow": "^10.1.3",

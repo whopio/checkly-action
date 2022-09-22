@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+import { S3 } from "aws-sdk";
+import { createHash } from "crypto";
 import { build as esbuild } from "esbuild";
 import {
   outputFile,
@@ -17,6 +19,7 @@ import { dirname, join, relative } from "path";
 import { runInNewContext } from "vm";
 import { CheckGroupCheck, CheckGroupsApi, ChecksApi } from "./checkly/api";
 import run from "./commands/run";
+import { CHECKLY_MAX_SCRIPT_LENGTH } from "./constants";
 import flags from "./flags";
 import { ChecklyConfig, FullChecklyConfig, TestingHooks } from "./types";
 import BinaryLoader from "./util/binary-loader";
@@ -229,17 +232,22 @@ const buildConfig = async (
   }
 };
 
-const readLocalTest = (baseDir: string) => async (location: string) => {
-  const [config, script] = await Promise.all([
-    readJSON(join(location, "config.json")),
-    readFile(join(location, "script.js"), { encoding: "utf-8" }),
-  ]);
-  return {
-    config: config as FullChecklyConfig,
-    script,
-    location: relative(baseDir, location),
+const readLocalTest =
+  (baseDir: string, bucket: string, region: string, maxSize: number, s3?: S3) =>
+  async (location: string) => {
+    const [config, script] = await Promise.all([
+      readJSON(join(location, "config.json")),
+      readFile(join(location, "script.js"), { encoding: "utf-8" }),
+    ]);
+    return {
+      config: config as FullChecklyConfig,
+      script:
+        script.length >= maxSize
+          ? await makeRemoteScript(s3, bucket, region, script, baseDir)
+          : script,
+      location: relative(baseDir, location),
+    };
   };
-};
 
 const getAllChecks = async (
   api: CheckGroupsApi,
@@ -270,14 +278,101 @@ const getAllChecks = async (
   return all;
 };
 
+const remoteScriptEntry = ({ url, hash }: { url: string; hash: string }) => `
+import { request } from "playwright";
+import { createHash } from "crypto";
+
+const downloadScript = async (url: string) => (
+  await (
+    await (
+      await request.newContext()
+    ).get(url)
+  ).body()
+).toString();
+
+(async () => {
+  const src = await downloadScript("${url}");
+  if (createHash("sha256").update(src).digest("hex") !== "${hash}") throw new Error("DownloadError: Hash mismatch");
+  if (src) {
+    const script = (0, eval)("(exports, require, module, __dirname, __filename) => {" + src + "}");
+    script(module.exports, require, module, __dirname, __filename);
+  }
+})();
+`;
+
+const makeRemoteScript = async (
+  s3: S3 | undefined,
+  bucket: string,
+  region: string,
+  source: string,
+  baseDir: string
+): Promise<string> => {
+  if (!s3)
+    throw new Error("S3 Config has to be provided for remote script loading");
+  const hash = createHash("sha256").update(source).digest("hex");
+  const Key = hash + ".js";
+  const match =
+    /^\/\/ auto-generated file, do not edit\. Source at: (.*)$/gm.exec(
+      source
+    )?.[1];
+  if (!match) throw new Error("Unable to find source location.");
+  try {
+    await s3.headBucket({ Bucket: bucket }).promise();
+  } catch {
+    await s3.createBucket({ Bucket: bucket }).promise();
+  }
+  try {
+    await s3.headObject({ Bucket: bucket, Key }).promise();
+  } catch {
+    await s3.putObject({ Bucket: bucket, Key, Body: source }).promise();
+  }
+  const signedUrl = s3.getSignedUrl("getObject", {
+    Bucket: bucket,
+    Key,
+    Expires: 3600 * 24 * 30 * 12,
+  });
+  const {
+    outputFiles: [{ text }],
+  } = await esbuild({
+    bundle: true,
+    // TODO: this is wrong, checkly only exposes a very small set of internal modules
+    external: [...builtinModules, "playwright"],
+    format: "cjs",
+    minify: true,
+    write: false,
+    stdin: {
+      contents: remoteScriptEntry({ url: signedUrl, hash }),
+      loader: "ts",
+      resolveDir: join(process.cwd(), baseDir),
+    },
+    absWorkingDir: join(process.cwd(), baseDir),
+    target: "node16",
+  });
+  return wrapScript(match, text);
+};
+
 const deploy = async ({
   directory,
   outDir,
   token,
   groupId,
   accountId,
+  s3Key,
+  s3KeyId,
+  s3Bucket,
+  s3Endpoint,
+  s3Region,
+  maxRawScriptSize,
 }: TypedFlags<typeof flags>) => {
   if (!groupId || !directory || !accountId) throw new Error("");
+  const s3 =
+    s3Key && s3KeyId
+      ? new S3({
+          credentials: { accessKeyId: s3KeyId, secretAccessKey: s3Key },
+          endpoint: s3Endpoint,
+          region: s3Region,
+        })
+      : undefined;
   const groupsApi = new CheckGroupsApi();
   groupsApi.defaultHeaders = {
     Authorization: "Bearer " + token,
@@ -290,8 +385,15 @@ const deploy = async ({
     (check) => check.checkType === CheckGroupCheck.CheckTypeEnum.Browser
   );
   const localTestLocations = await collectLocalTests(join(directory, outDir));
+  const localTestReader = readLocalTest(
+    join(directory, outDir),
+    s3Bucket,
+    s3Region,
+    Math.min(CHECKLY_MAX_SCRIPT_LENGTH, maxRawScriptSize),
+    s3
+  );
   const localTests = await Promise.all(
-    Array.from(localTestLocations).map(readLocalTest(join(directory, outDir)))
+    Array.from(localTestLocations).map(localTestReader)
   );
   const matchedChecks: string[] = [];
   for (const localTest of localTests) {
@@ -369,7 +471,6 @@ const main = async () => {
     importMeta: import.meta,
     flags,
   });
-
   if (inputFlags.help) showHelp();
   if (inputFlags.version) showVersion();
 
