@@ -130,3 +130,5 @@ dist
 .openapi-generator
 
 action
+
+.DS_store

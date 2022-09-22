@@ -14,6 +14,22 @@ inputs:
     required: false
     default: ./
     description: "if you want to modify the tests root directory"
+  s3-key:
+    required: false
+    description: "if you want to use scripts with more than 1.000.000 chars"
+  s3-key-id:
+    required: false
+    description: "key id matching the provided key"
+  s3-bucket:
+    required: false
+    default: ".checkly"
+    description: "the s3 bucket to use for large scripts"
+  s3-endpoint:
+    required: false
+    description: "the s3 endpoint to target"
+  max-script-size:
+    required: false
+    description: "the maximum amount of chars in a script before its loaded via S3"
 
 runs:
   using: "node16"

@@ -1,0 +1,1 @@
+export const CHECKLY_MAX_SCRIPT_LENGTH = 1048576;
