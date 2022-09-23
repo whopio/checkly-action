@@ -6,7 +6,7 @@ export default {
   groupId: { type: "number", alias: "g" },
   accountId: { type: "string", alias: "acc" },
   token: { type: "string", alias: "t" },
-  directory: { type: "string", alias: "dir" },
+  directory: { type: "string", alias: "dir", default: "./" },
   outDir: { type: "string", alias: "out", default: ".checkly" },
   prebuilt: { type: "boolean", default: false },
   filter: { type: "string", isMultiple: true },

@@ -22,11 +22,15 @@ inputs:
     description: "key id matching the provided key"
   s3-bucket:
     required: false
-    default: ".checkly"
+    default: "checkly"
     description: "the s3 bucket to use for large scripts"
   s3-endpoint:
     required: false
     description: "the s3 endpoint to target"
+  s3-region:
+    required: false
+    description: "the s3 region to target"
+    default: auto
   max-script-size:
     required: false
     description: "the maximum amount of chars in a script before its loaded via S3"

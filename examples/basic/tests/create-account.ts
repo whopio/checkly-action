@@ -1,17 +1,13 @@
-import { InferContext } from "@whop-sdk/checkly-action";
-import type before from "./_before";
+import { DefaultContext, CheckConfig } from "@whop-sdk/checkly-action";
 
-export const config = {
-  description: "should be able to log in",
-  tags: [],
+export const config: CheckConfig = {
   activated: false,
   muted: true,
   doubleCheck: true,
   shouldFail: false,
-  locations: [],
 };
 
-export default async (ctx: InferContext<typeof before>) => {
-  console.log("test");
-  await ctx.page.goto(process.env.SITE_URL!);
+export default async ({ browser }: DefaultContext) => {
+  const page = await browser.newPage();
+  await page.goto("https://google.com");
 };
