@@ -1,6 +1,6 @@
 {
   "name": "@whop-sdk/checkly-action",
-  "version": "0.2.0-canary.2",
+  "version": "0.2.0-canary.3",
   "description": "Sync a repository with a checkly group.",
   "private": false,
   "repository": {
