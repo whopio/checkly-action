@@ -20,7 +20,7 @@ jobs:
           cache: "pnpm"
       - name: Install Node Modules
         run: pnpm i
-      - uses: whopio/checkly-action@v0.2.0-canary.2
+      - uses: whopio/checkly-action@v0.2.0-canary.3
         with:
           checkly-token: ${{ secrets.CHECKLY_TOKEN }}
           checkly-group: ${{ secrets.CHECKLY_GROUP }}
