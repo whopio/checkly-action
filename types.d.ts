@@ -37,4 +37,6 @@ declare module "@whop-sdk/checkly-action" {
     shouldFail: boolean;
     doubleCheck: boolean;
   };
+
+  export type CheckConfig = Partial<FullChecklyConfig>;
 }
