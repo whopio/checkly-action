@@ -3,8 +3,6 @@ name: Sync Check Group
 on:
   push:
     branches: [main]
-    paths:
-      - examples/**/*
 
 jobs:
   sync:
@@ -22,9 +20,13 @@ jobs:
           cache: "pnpm"
       - name: Install Node Modules
         run: pnpm i
-      - uses: whopio/checkly-action@v0.1.1-canary4
+      - uses: whopio/checkly-action@v0.2.0-canary.1
         with:
           checkly-token: ${{ secrets.CHECKLY_TOKEN }}
           checkly-group: ${{ secrets.CHECKLY_GROUP }}
           checkly-account: ${{ secrets.CHECKLY_ACCOUNT }}
           directory: ./examples/basic
+          s3-region: us-east-1
+          s3-key: ${{ secrets.S3_KEY }}
+          s3-key-id: ${{ secrets.S3_KEY_ID }}
+          max-script-size: 1000
