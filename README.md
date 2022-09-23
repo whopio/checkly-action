@@ -7,6 +7,7 @@ Github Action + npm package that allows to sync a Checkly check group with a git
 1. Create an empty repository or a new package in an already existing monorepo
    1. create a file called `checkly.config.json` in this directory
    2. also create a folder named `tests`, this folder is where all the checks live.
+   3. add `.checkly` to your `.gitignore`
 2. Install this package
 
 ```
@@ -21,7 +22,22 @@ yarn add @whop-sdk/checkly-action --dev
 pnpm i @whop-sdk/checkly-action --save-dev
 ```
 
-3. (Optional) for TypeScript support add `@whop-sdk/checkly-action` to `compilerOptions.types` in your tsconfig
+3. (Optional) for TypeScript support add `@whop-sdk/checkly-action` to `compilerOptions.types` in your tsconfig:
+
+```json
+{
+  "compilerOptions": {
+    "target": "es2016",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "types": ["@whop-sdk/checkly-action", "node"]
+  }
+}
+```
 
 ## Github Action
 
@@ -230,3 +246,7 @@ Lastly, multiple filters can be passed resulting in the following command runnin
 ```
 pnpm run test --filter example1 --filter sub-task/**/*
 ```
+
+### Using .env files
+
+To supply the local tests with Environment Variables, a `.env` file can be created next to the `package.json`
