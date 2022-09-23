@@ -12,10 +12,12 @@ import { fileURLToPath } from 'url';
 const require = createRequire(import.meta.url);
         `,
       },
+      target: "node16",
     };
   else if (options.entry[0] === "index.ts")
     return {
       outDir: "./action",
+      target: "node16",
     };
   return {};
 });

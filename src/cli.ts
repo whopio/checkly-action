@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { S3 } from "aws-sdk";
+import S3 from "aws-sdk/clients/s3";
 import { createHash } from "crypto";
 import { build as esbuild } from "esbuild";
 import {
