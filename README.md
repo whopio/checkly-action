@@ -121,7 +121,7 @@ export default async ({ browser }: DefaultContext) => {
 };
 ```
 
-### Setup and Teardown
+### Setup and Teardown Hooks
 
 Next to normal checks every directory can contain `_before` and `_after` files that run before and after each test in the directory and have the ability to modify the context passed to the final testing script
 
@@ -169,7 +169,7 @@ import type before from "./_before";
 export default async (ctx: InferContext<typeof before>) => {};
 ```
 
-Note that the `before` import has to be targeting the last `_before` file executed before the it's being used in.
+Note: The `before` import has to be targeting the last `_before` file executed before the current test/hook.
 
 ### Using .har and .json files
 
