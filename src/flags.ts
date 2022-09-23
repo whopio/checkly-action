@@ -1,5 +1,3 @@
-import { CHECKLY_MAX_SCRIPT_LENGTH } from "./constants";
-
 export default {
   help: { type: "boolean", default: false, alias: "h" },
   version: { type: "boolean", default: false, alias: "v" },
@@ -18,5 +16,5 @@ export default {
   s3Bucket: { type: "string", default: "checkly" },
   s3Endpoint: { type: "string" },
   s3Region: { type: "string", default: "us-east-1" },
-  maxRawScriptSize: { type: "number", default: CHECKLY_MAX_SCRIPT_LENGTH },
+  maxRawScriptSize: { type: "number", default: 100000 },
 } as const;

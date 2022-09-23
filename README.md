@@ -41,6 +41,8 @@ pnpm i @whop-sdk/checkly-action --save-dev
 
 ## Github Action
 
+### Example
+
 ```yml
 name: Sync Check Group
 
@@ -89,7 +91,7 @@ jobs:
 | s3-region       | s3 region                                                             |          |  auto   |
 | max-script-size | the maximum amount of characters in a check before s3 loading is used |          |         |
 
-## S3 Integration for supporting large scripts
+### S3 Integration for supporting large scripts
 
 Checkly only allows for around 1.000.000 characters in a test script. To bypass this restriction this library supports uploading the scripts to a s3 bucket and then uploading a loader that downloads the script from s3 and then executes it.
 
