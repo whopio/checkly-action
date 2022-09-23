@@ -89,6 +89,14 @@ jobs:
 | s3-region       | s3 region                                                             |          |  auto   |
 | max-script-size | the maximum amount of characters in a check before s3 loading is used |          |         |
 
+## S3 Integration for supporting large scripts
+
+Checkly only allows for around 1.000.000 characters in a test script. To bypass this restriction this library supports uploading the scripts to a s3 bucket and then uploading a loader that downloads the script from s3 and then executes it.
+
+As uploading scripts with more than 300.000 characters already produces errors when pushing it to Checkly, by default this action will use the s3 loader for scripts with 100.000 chars or more. This setting can be controlled through the `max-script-size` input of the Action.
+
+In order for this to work you will need to supply the s3 related inputs to the Action.
+
 ## Writing Checks
 
 Every check file can export a `config` that defined the checks parameters on checkly and export the check logic as the default export. The check function receives a context parameter that contains the browser and playwright context instances by default and can be extended using the `Setup and Teardown` feature.
