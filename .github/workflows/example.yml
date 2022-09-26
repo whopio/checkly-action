@@ -20,6 +20,9 @@ jobs:
           cache: "pnpm"
       - name: Install Node Modules
         run: pnpm i
+      - name: Bundle monorepo dependency
+        run: pnpm bundle
+        working-directory: packages/cli
       - uses: whopio/checkly-action@v0.2.0-canary.3
         with:
           checkly-token: ${{ secrets.CHECKLY_TOKEN }}
