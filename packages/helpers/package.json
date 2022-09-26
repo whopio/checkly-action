@@ -10,7 +10,6 @@
     "directory": "packages/helpers"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "bundle": "tsup --minify --clean",
     "prepublishOnly": "tsup --minify --clean",
     "dev": "tsup --watch"

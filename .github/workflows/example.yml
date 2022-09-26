@@ -18,11 +18,13 @@ jobs:
         with:
           node-version: "16"
           cache: "pnpm"
-      - name: Install Node Modules
-        run: pnpm i
+      - name: Install CLI node modules
+        run: pnpm i --filter "@whop-sdk/checkly-action..."
       - name: Bundle monorepo dependency
         run: pnpm bundle
         working-directory: packages/cli
+      - name: Install Node Modules
+        run: pnpm i
       - uses: whopio/checkly-action@v0.2.0-canary.3
         with:
           checkly-token: ${{ secrets.CHECKLY_TOKEN }}
