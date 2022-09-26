@@ -27,4 +27,4 @@ jobs:
         id: publish
         with:
           token: ${{ secrets.NPM_TOKEN }}
-          package: packages/cli/package.json
+          package: packages/helpers/package.json
