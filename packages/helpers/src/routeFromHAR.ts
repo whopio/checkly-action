@@ -46,7 +46,7 @@ const handle = (
       return;
     }
 
-    await route.fallback();
+    await route.continue();
   };
 };
 
