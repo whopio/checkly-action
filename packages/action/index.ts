@@ -1,6 +1,6 @@
 import { getInput } from "@actions/core";
 import { exec } from "@actions/exec";
-import { name, version } from "./package.json";
+import { name, version } from "../cli/package.json";
 
 const CHECKLY_ACTION_BIN = `${name}@${version}`;
 const token = getInput("checkly-token");

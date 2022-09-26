@@ -129,6 +129,4 @@ dist
 .checkly
 .openapi-generator
 
-action
-
 .DS_store

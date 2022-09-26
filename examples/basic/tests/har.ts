@@ -1,4 +1,6 @@
 import { InferContext } from "@whop-sdk/checkly-action";
+import { routeFromHAR } from "@whop-sdk/checkly-helpers";
+import archive from "./test.har";
 import type _before from "./_before";
 
 // TODO: set activated to false
@@ -14,5 +16,5 @@ export const config = {
 };
 
 export default async ({ page }: InferContext<typeof _before>) => {
-  throw new Error("test error.");
+  await routeFromHAR(page, archive);
 };

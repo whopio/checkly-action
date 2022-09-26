@@ -1,46 +1,29 @@
 {
-  "name": "@whop-sdk/checkly-action",
-  "version": "0.2.0-canary.3",
+  "name": "checkly-action",
+  "version": "0.0.0",
   "description": "Sync a repository with a checkly group.",
   "private": false,
   "repository": {
     "type": "git",
     "url": "https://github.com/whopio/checkly-action"
   },
-  "scripts": {
-    "bundle": "tsup src/cli.ts --format esm --minify --clean",
-    "prepublishOnly": "tsup src/cli.ts --format esm --minify --clean",
-    "dev": "tsup src/cli.ts --watch --format esm",
-    "action:bundle": "tsup index.ts --format cjs --minify --clean",
-    "action:dev": "tsup index.ts --format cjs --watch",
-    "test": "node dist/cli.mjs run --dir ./examples/basic"
-  },
+  "workspaces": [
+    "examples/*",
+    "packages/*"
+  ],
+  "scripts": {},
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@actions/core": "^1.9.1",
-    "@actions/exec": "^1.1.1",
-    "@actions/github": "^5.0.3",
-    "@types/fs-extra": "^9.0.13",
-    "@types/minimatch": "^5.1.2",
-    "@types/node": "^18.7.16",
-    "@types/request": "^2.48.8",
-    "fs-extra": "^10.1.0",
-    "playwright": "^1.25.2",
-    "tsup": "^6.2.3",
-    "typescript": "^4.8.2"
   },
   "dependencies": {
-    "@swc/core": "^1.2.249",
-    "aws-sdk": "^2.1220.0",
-    "dotenv": "^16.0.2",
-    "esbuild": "^0.15.7",
-    "meow": "^10.1.3",
-    "minimatch": "^5.1.0",
-    "request": "^2.88.2"
   },
   "module": "./dist/cli.mjs",
   "bin": "./dist/cli.mjs",
-  "types": "./types.d.ts"
+  "types": "./types.d.ts",
+  "packageManager": "pnpm@7.5.2",
+  "engines": {
+    "node": ">=14.0.0"
+  }
 }

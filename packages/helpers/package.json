@@ -1,0 +1,38 @@
+{
+  "name": "@whop-sdk/checkly-helpers",
+  "version": "0.0.1-canary.1",
+  "description": "",
+  "main": "dist/index.js",
+  "private": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/whopio/checkly-action",
+    "directory": "packages/helpers"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "bundle": "tsup --minify --clean",
+    "prepublishOnly": "tsup --minify --clean",
+    "dev": "tsup --watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^18.7.21",
+    "playwright": "^1.26.0",
+    "tsup": "^6.2.3",
+    "typescript": "^4.8.2"
+  },
+  "tsup": {
+    "entry": [
+      "src/index.ts"
+    ],
+    "format": "cjs",
+    "dts": true
+  },
+  "peerDependencies": {
+    "playwright": "^1.26.0"
+  },
+  "types": "dist/index.d.ts"
+}

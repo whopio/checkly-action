@@ -1,13 +1,6 @@
 declare module "*.har" {
-  const fileName: () => Promise<string>;
-  export const release: () => Promise<void>;
-  export default fileName;
-}
-
-declare module "*.json" {
-  const fileName: () => Promise<string>;
-  export const release: () => Promise<void>;
-  export default fileName;
+  const e: any;
+  export default e;
 }
 
 declare module "@whop-sdk/checkly-action" {

@@ -1,0 +1,27 @@
+{
+  "name": "@whopio/checkly-action",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "bundle": "tsup --minify --clean",
+    "dev": "tsup --watch"
+  },
+  "devDependencies": {
+    "@actions/core": "^1.9.1",
+    "@actions/exec": "^1.1.1",
+    "@types/node": "^18.7.16",
+    "tsup": "^6.2.3",
+    "typescript": "^4.8.2"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "tsup": {
+    "entry": [
+      "index.ts"
+    ],
+    "format": "cjs"
+  }
+}
