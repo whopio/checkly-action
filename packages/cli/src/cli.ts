@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
+import { CheckGroupCheck, CheckGroupsApi, ChecksApi } from "@local/checkly-api";
 import AWS from "aws-sdk";
-const { S3 } = AWS;
 import { createHash } from "crypto";
 import { build as esbuild } from "esbuild";
 import {
@@ -18,7 +18,6 @@ import meow, { TypedFlags } from "meow";
 import Module, { builtinModules } from "module";
 import { dirname, join, relative } from "path";
 import { runInNewContext } from "vm";
-import { CheckGroupCheck, CheckGroupsApi, ChecksApi } from "./checkly/api";
 import run from "./commands/run";
 import { CHECKLY_MAX_SCRIPT_LENGTH } from "./constants";
 import flags from "./flags";
@@ -26,6 +25,7 @@ import { ChecklyConfig, FullChecklyConfig, TestingHooks } from "./types";
 import BinaryLoader from "./util/binary-loader";
 import { collectLocalTests, exists } from "./util/common";
 import { makeExportStripper } from "./util/export-stripper";
+const { S3 } = AWS;
 
 const help = `
 Get help brother
@@ -234,7 +234,13 @@ const buildConfig = async (
 };
 
 const readLocalTest =
-  (baseDir: string, bucket: string, region: string, maxSize: number, s3?: S3) =>
+  (
+    baseDir: string,
+    bucket: string,
+    region: string,
+    maxSize: number,
+    s3?: AWS.S3
+  ) =>
   async (location: string) => {
     const [config, script] = await Promise.all([
       readJSON(join(location, "config.json")),
@@ -303,7 +309,7 @@ const downloadScript = async (url: string, hash: string) => {
 `;
 
 const makeRemoteScript = async (
-  s3: S3 | undefined,
+  s3: AWS.S3 | undefined,
   bucket: string,
   region: string,
   source: string,

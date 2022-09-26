@@ -37,4 +37,4 @@ inputs:
 
 runs:
   using: "node16"
-  main: "action/index.js"
+  main: "packages/action/dist/index.js"
