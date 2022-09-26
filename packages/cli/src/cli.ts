@@ -190,7 +190,7 @@ const buildScript = async (
     absWorkingDir: baseDir,
     write: false,
     format: "cjs",
-    external: [...builtinModules, "playwright", "expect", "puppeteer"],
+    external: [...builtinModules, "playwright", "puppeteer"],
     plugins: [HandlerPlugin(baseDir)],
     target: "node16",
     bundle: true,
