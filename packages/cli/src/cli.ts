@@ -22,7 +22,6 @@ import run from "./commands/run";
 import { CHECKLY_MAX_SCRIPT_LENGTH } from "./constants";
 import flags from "./flags";
 import { ChecklyConfig, FullChecklyConfig, TestingHooks } from "./types";
-import BinaryLoader from "./util/binary-loader";
 import { collectLocalTests, exists } from "./util/common";
 import { makeExportStripper } from "./util/export-stripper";
 const { S3 } = AWS;
@@ -192,10 +191,13 @@ const buildScript = async (
     write: false,
     format: "cjs",
     external: [...builtinModules, "playwright", "expect", "puppeteer"],
-    plugins: [BinaryLoader(/.\/.*.(har|json)$/), HandlerPlugin(baseDir)],
+    plugins: [HandlerPlugin(baseDir)],
     target: "node16",
     bundle: true,
     minify: true,
+    loader: {
+      ".har": "json",
+    },
   });
   return text;
 };
@@ -219,9 +221,12 @@ const buildConfig = async (
       write: false,
       format: "cjs",
       external: [...builtinModules],
-      plugins: [BinaryLoader(/.\/.*.(har|json)$/), ConfigPlugin(baseDir)],
+      plugins: [ConfigPlugin(baseDir)],
       target: "node16",
       bundle: true,
+      loader: {
+        ".har": "json",
+      },
     });
     const { default: testConfig } = runScript<{ default: FullChecklyConfig }>(
       text,

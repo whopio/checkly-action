@@ -1,7 +1,6 @@
-import type { BrowserContext, Route, Request, Page } from "playwright";
-import { HARFile } from "./har";
-import { HeadersArray } from "./playwright-types";
-import type * as har from "./har";
+import type { BrowserContext, Page, Request, Route } from "playwright";
+import type { Entry, HARFile, Header } from "./har";
+import type { HeadersArray } from "./playwright-types";
 
 type ContextOrPage = BrowserContext | Page;
 
@@ -100,9 +99,10 @@ const lookup = async (
 const routeFromHAR = async (
   target: ContextOrPage,
   _har: HARFile,
-  notFoundAction: string
+  url: string = "**/*",
+  abortNotFound: boolean = false
 ) => {
-  await target.route("**/*", handle(_har, notFoundAction));
+  await target.route(url, handle(_har, abortNotFound ? "abort" : ""));
 };
 
 const harFindResponse = async (
@@ -113,9 +113,9 @@ const harFindResponse = async (
   postData: Buffer | undefined
 ) => {
   const harLog = _har.log;
-  const visited = new Set<har.Entry>();
+  const visited = new Set<Entry>();
   while (true) {
-    const entries: har.Entry[] = [];
+    const entries: Entry[] = [];
     for (const candidate of harLog.entries) {
       if (candidate.request.url !== url || candidate.request.method !== method)
         continue;
@@ -132,7 +132,7 @@ const harFindResponse = async (
 
     // Disambiguate using headers - then one with most matching headers wins.
     if (entries.length > 1) {
-      const list: { candidate: har.Entry; matchingHeaders: number }[] = [];
+      const list: { candidate: Entry; matchingHeaders: number }[] = [];
       for (const candidate of entries) {
         const matchingHeaders = countMatchingHeaders(
           candidate.request.headers,
@@ -190,7 +190,7 @@ const loadContent = async (content: {
 };
 
 function countMatchingHeaders(
-  harHeaders: har.Header[],
+  harHeaders: Header[],
   headers: HeadersArray
 ): number {
   const set = new Set(headers.map((h) => h.name.toLowerCase() + ":" + h.value));

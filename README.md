@@ -173,7 +173,7 @@ Note: The `before` import has to be targeting the last `_before` file executed b
 
 ### Using .har and .json files
 
-The bundler automatically wraps .har and .json imports in a loader that writes the file to disk and resolves with the filename
+.har and .json files are bundled into the js output. To use the routeFromHAR feature of playwright a helper from the `@whop-sdk/checkly-helpers` package can be utilised. (The helpers package needs to be installed first). The default routeFromHAR feature is also disabled on Checkly's platform
 
 ```ts
 // tests
@@ -182,16 +182,15 @@ The bundler automatically wraps .har and .json imports in a loader that writes t
 
 // example.ts:
 import { DefaultContext, CheckConfig } from "@whop-sdk/checkly-action";
-import fileName, { release } from "./example.har";
+import { routeFromHAR } from "@whop-sdk/checkly-helpers";
+import archive from "./example.har";
 
 export default async ({ context }: DefaultContext) => {
-  // await the fileName
-  context.routeFromHar(await fileName());
-
-  // perform the check
-
-  // release the file from disk (important for local testing)
-  await release();
+  // on the entire context
+  await routeFromHAR(context, archive);
+  // or on a single page
+  const page = await context.newPage();
+  await routeFromHAR(page, archive);
 };
 ```
 
